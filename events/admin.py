@@ -3,4 +3,16 @@ from .models import *
 
 
 # Register your models here.
-admin.site.register(Event)
+
+class EventAdmin(admin.ModelAdmin):
+    list_display = (
+        'title',
+        'category',
+        'state'
+    )
+    ordering = ('title',)
+    list_filter = ('state', 'category')
+    
+
+
+admin.site.register(Event, EventAdmin)
