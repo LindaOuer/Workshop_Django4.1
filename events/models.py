@@ -48,6 +48,22 @@ class Event(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     organizer = models.ForeignKey(Person, on_delete=models.CASCADE)
+    
+    participate = models.ManyToManyField(
+        Person,
+        related_name="participations",
+        through='Participation'
+    )
 
     def __str__(self):
         return self.title
+    
+class Participation(models.Model):
+    person = models.ForeignKey(Person, on_delete=models.CASCADE)
+    event = models.ForeignKey(Event, on_delete=models.CASCADE)
+    datePart = models.DateField(auto_now=True)
+    
+    class Meta:
+        unique_together = ('person', 'event')
+    
+
