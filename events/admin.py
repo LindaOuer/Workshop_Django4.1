@@ -23,6 +23,23 @@ def set_Accept(ModelAdmin, request, queryset):
 set_Accept.short_description = 'Accept'
 
 
+class ParticipateListFilter(admin.SimpleListFilter):
+    title = 'Participation'
+    parameter_name = 'nbrParticipants'
+
+    def lookups(self, request, model_admin):
+        return (
+            ('0', 'No Participants'),
+            ('more', 'There are Participants'),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value() == '0':
+            return queryset.filter(nbrParticipants__exact=0)
+        if self.value() == 'more':
+            return queryset.filter(nbrParticipants__gt=0)
+
+
 class EventAdmin(admin.ModelAdmin):
     def set_Refuse(self, request, queryset):
         rows = queryset.filter(state=False)
@@ -48,7 +65,7 @@ class EventAdmin(admin.ModelAdmin):
         'state'
     )
     ordering = ('title',)
-    list_filter = ('state', 'category')
+    list_filter = ('state', 'category', ParticipateListFilter)
     search_fields = [
         'title',
         'category'
