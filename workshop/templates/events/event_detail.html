@@ -1,0 +1,10 @@
+{% extends "base.html" %} {% block content %}
+<div class="card mt-5" style="width: 18rem">
+    <img src="{{ event.eventImage.url }}" class="card-img-top" alt="..." />
+    <div class="card-body">
+        <h5 class="card-title">{{ event.title }}</h5>
+        <p class="card-text">{{ event.description }}</p>
+        <a href="{% url 'events_listC' %}" class="btn btn-dark">Go back</a>
+    </div>
+</div>
+{% endblock content %}

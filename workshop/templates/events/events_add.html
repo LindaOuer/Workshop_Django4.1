@@ -1,0 +1,9 @@
+{% extends 'base.html' %} {% load crispy_forms_tags %} {% block content %}
+
+<form method="POST" class="my-5" enctype="multipart/form-data">
+    {% csrf_token %} {{ form|crispy}}
+    <input type="submit" value="save" class="btn btn-dark" />
+    <input type="reset" value="cancel" class="btn btn-light" />
+</form>
+
+{% endblock content %}

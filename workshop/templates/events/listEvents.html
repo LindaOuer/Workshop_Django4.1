@@ -1,8 +1,9 @@
-{% extends "base.html" %} 
-{% block content %}
+{% extends "base.html" %} {% block content %}
 <ul>
     {% for event in events %}
-    <li>{{ event.title }} - {{ event.description }}</li>
+    <li>
+        <a href="{% url 'events_details' event.id %}">{{ event.title }}</a>
+    </li>
     {% endfor %}
 </ul>
 {% endblock %}

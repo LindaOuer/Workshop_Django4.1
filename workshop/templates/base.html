@@ -14,7 +14,8 @@
         />
     </head>
     <body>
-        {% include 'header.html' with greetings = "Hello" %} {% block header %} {% endblock header %}
+        {% include 'header.html' with greetings="Hello" %} 
+        {% block header %} {% endblock header %}
 
         <div class="container">{% block content %} {% endblock content %}</div>
 
