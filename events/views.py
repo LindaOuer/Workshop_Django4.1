@@ -8,6 +8,9 @@ from users.models import Person
 from .forms import EventForm, EventModelForm
 # Create your views here.
 
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
+
 
 def homePage(request):
     return HttpResponse('<h1>Welcome To... </h1>')
@@ -37,6 +40,7 @@ def listEventsStatic(request):
     )
 
 
+@login_required(login_url='/account/login')
 def listEvents(request):
     # list = Event.objects.all()
     list = Event.objects.filter(state=True)
@@ -82,7 +86,8 @@ def addEventModel(request):
 
 def participateEvent(request, id):
     event = Event.objects.get(id=id)
-    person = Person.objects.get(cin='12345679')
+    # person = Person.objects.get(cin='12345679')
+    person = request.user
 
     if Participation.objects.filter(person=person, event=event).count() == 0:
         Participation.objects.create(person=person, event=event)
@@ -116,14 +121,15 @@ def cancelEvent(request, id):
 def deleteEvent(request, id):
     Event.objects.get(id=id).delete()
     return redirect("events_list")
-    
+
 # class
 
 
-class EventCreateView(CreateView):
+class EventCreateView(LoginRequiredMixin, CreateView):
     model = Event
     form_class = EventModelForm
     success_url = reverse_lazy('events_list')
+    login_url = 'login'
 
 
 class EventUpdateView(UpdateView):
@@ -137,7 +143,7 @@ class EventsList(ListView):
     model = Event
     template_name = 'events/listEvents.html'
     context_object_name = 'events'
-    queryset= Event.objects.filter(state=True)
+    queryset = Event.objects.filter(state=True)
     # def get_queryset(self):
     #     return  Event.objects.filter(state=True)
 
