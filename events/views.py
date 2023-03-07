@@ -1,15 +1,17 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
-from django.views.generic import ListView, DetailView, CreateView
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
 
-from .models import Event
+from .models import *
+from users.models import Person
 from .forms import EventForm, EventModelForm
 # Create your views here.
 
 
 def homePage(request):
     return HttpResponse('<h1>Welcome To... </h1>')
+
 
 def listEventsStatic(request):
     list = [
@@ -34,8 +36,10 @@ def listEventsStatic(request):
         }
     )
 
+
 def listEvents(request):
-    list = Event.objects.all()
+    # list = Event.objects.all()
+    list = Event.objects.filter(state=True)
     return render(
         request,
         'events/listEvents.html',
@@ -43,7 +47,8 @@ def listEvents(request):
             'events': list,
         }
     )
-    
+
+
 def detailsEvent(request, id):
     event = Event.objects.get(id=id)
     return render(
@@ -53,7 +58,8 @@ def detailsEvent(request, id):
             'event': event,
         }
     )
-    
+
+
 def addEvent(request):
     form = EventForm()
     if request.method == "POST":
@@ -74,15 +80,72 @@ def addEventModel(request):
     return render(request, 'events/events_add.html', {'form': form})
 
 
-# class 
+def participateEvent(request, id):
+    event = Event.objects.get(id=id)
+    person = Person.objects.get(cin='12345679')
+
+    if Participation.objects.filter(person=person, event=event).count() == 0:
+        Participation.objects.create(person=person, event=event)
+
+        event.nbrParticipants += 1
+        event.save()
+
+        # nb = event.nbrParticipants + 1
+        # Event.objects.filter(id=id).update(nbrParticipants=nb)
+
+    return redirect("events_list")
+
+
+def cancelEvent(request, id):
+    event = Event.objects.get(id=id)
+    person = Person.objects.get(cin='12345679')
+    participation = Participation.objects.filter(person=person, event=event)
+    if participation.count() != 0:
+        participation.delete()
+
+        event.nbrParticipants -= 1
+        event.save()
+        # messages.add_message(request, messages.SUCCESS, f'Your participation has been revoked \"{event.title}\"')
+
+        # nb = event.nbrParticipants + 1
+        # Event.objects.filter(id=id).update(nbrParticipants=nb)
+
+    return redirect("events_list")
+
+
+def deleteEvent(request, id):
+    Event.objects.get(id=id).delete()
+    return redirect("events_list")
+    
+# class
+
+
 class EventCreateView(CreateView):
     model = Event
     form_class = EventModelForm
     success_url = reverse_lazy('events_list')
+
+
+class EventUpdateView(UpdateView):
+    model = Event
+    form_class = EventModelForm
+    success_url = reverse_lazy('events_list')
+    template_name = 'events/events_add.html'
+
+
 class EventsList(ListView):
     model = Event
     template_name = 'events/listEvents.html'
     context_object_name = 'events'
+    queryset= Event.objects.filter(state=True)
+    # def get_queryset(self):
+    #     return  Event.objects.filter(state=True)
+
 
 class EventsDetails(DetailView):
     model = Event
+
+
+class EventDelete(DeleteView):
+    model = Event
+    success_url = reverse_lazy('events_list')
